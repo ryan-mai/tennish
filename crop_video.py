@@ -2,7 +2,7 @@ from pathlib import Path
 
 video_file = '../input_videos/input_video.mp4'
 
-def checkBounds(frame1, frame2):
+def check_bounds(frame1, frame2):
     valid = True
     if (frame1.xcenter == 0):
         if (frame1.x + frame1.xoffset > 1) or (frame1.x > 1):
@@ -21,13 +21,14 @@ def checkBounds(frame1, frame2):
             print("Crop 2: Y-Coordinates are out of bounds!")
             valid = False
     return valid
-def checkFile(file):
-    if not Path(video_file).exists():
-        print(f"Video file: {video_file} does not exist!")
+
+def check_file(file):
+    if not Path(file).exists():
+        print(f"Video file: {file} does not exist!")
         return False
     return True
 
-def calculatePixels(frame, width, height):
+def calculate_pixels(frame, width, height):
     frame.x = int(width * frame.x)
     frame.y = int(height * frame.y)
 
