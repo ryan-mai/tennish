@@ -1,13 +1,17 @@
 import numpy as np
 import cv2
-from cv2 import VideoCapture, getPerspectiveTransform, warpPerspective, line, circle, rectangle, perspectiveTransform
+from cv2 import getPerspectiveTransform, warpPerspective, line, circle, perspectiveTransform
 from crop_video import video_file, check_file
 
-video = VideoCapture(video_file)
-check_file(video)
+if not check_file(video_file):
+    raise SystemExit(f"Video file: {video_file} cannot be found!")
 
-frame_width = int(video.get(3))
-frame_height = int(video.get(4))
+video = cv2.VideoCapture(video_file)
+if not video.isOpened():
+    raise SystemExit(f"Video file: {video_file} cannot be opened!")
+
+frame_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+frame_height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
 pixel_width = int(967)
 pixel_height = int(1585)
@@ -37,16 +41,20 @@ def map_court(frame, top_left, top_right, bottom_left, bottom_right):
 def show_mapped_lines(frame):
     cv2.rectangle(frame, (0, 0), (width, height), color=(255, 255, 255), thickness=6)
     cv2.rectangle(frame, (x_offset, y_offset), (court_width + x_offset, court_height + y_offset), color=(255, 255, 255), thickness=2)
-    cv2.rectangle(frame, (x_offset, y_offset + int(court_height * 0.5)), (court_width + x_offset, height), color=(255, 255, 255), thickness=2)
-    cv2.rectangle(frame, (x_offset,y_offset + int(court_height * 0.5)), (court_width + x_offset, y_offset + int(court_height * 0.5)), color=(255, 255, 255), thickness=2)
-    cv2.rectangle(frame, (x_offset+int(court_width * 0.124886), y_offset), (court_width + x_offset - int(court_width*0.124886), court_height + y_offset), color=(255, 255, 255), thickness=2)
+    # Half Line
+    y_half = y_offset + int(court_height * 0.5)
+    cv2.line(frame, (x_offset, y_half), (court_width + x_offset, y_half), color=(255, 255, 255), thickness=2)
+    
+    # Service Box & Boundaries
+    cv2.rectangle(frame, (x_offset + int(court_width * 0.124886), y_offset), (court_width + x_offset - int(court_width*0.124886), court_height + y_offset), color=(255, 255, 255), thickness=2)
     cv2.rectangle(frame, (x_offset + int(court_width * 0.124886), y_offset + int(court_height * 0.23054)), (court_width + x_offset - int(court_width * 0.124886), court_height + y_offset - int(court_height * 0.23054)), color=(255, 255, 255), thickness=6)
     cv2.rectangle(frame, (x_offset + int(court_width * 0.5), y_offset + int(court_height * 0.23054)), (court_width + x_offset - int(court_width * 0.5), court_height + y_offset - int(court_height * 0.23054)), color=(255, 255, 255), thickness=6)
+    return frame
 
 def show_mapped_point(frame, matrix, point):
     points = np.array([[point]])
     transformed = perspectiveTransform(points, matrix)[0][0]
-    circle(frame, (int(transformed[0]), int(transformed[1])), radius=0, color=(0, 0, 255), thickness=25)
+    cv2.circle(frame, (int(transformed[0]), int(transformed[1])), radius=0, color=(0, 0, 255), thickness=25)
     return frame
 
 def give_mapped_point(matrix, point):

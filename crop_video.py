@@ -1,6 +1,6 @@
 from pathlib import Path
 
-video_file = '../input_videos/input_video.mp4'
+video_file = 'input_videos/input_video.mp4'
 
 def check_bounds(frame1, frame2):
     valid = True
