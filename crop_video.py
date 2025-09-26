@@ -1,6 +1,6 @@
 from pathlib import Path
 
-video_file = 'input_videos/input_video.mp4'
+video_file = r'input_videos\us_open_final_2025_9s.mp4'
 
 def check_bounds(frame1, frame2):
     valid = True
@@ -49,7 +49,7 @@ def determinant(a, b):
     #eg. 1 2 = a[0] a[1]
     #    3 4 = b[0] b[1]
 
-def determine_intersection(line1, line2, x1, x2, y1, y2):
+def find_intersection(line1, line2, x1, x2, y1, y2):
     # line1 = ((1, 2), (4, 6))
     # line2 = ((1, 5)) (4, 3))
 

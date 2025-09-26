@@ -3,18 +3,17 @@ import cv2
 from cv2 import getPerspectiveTransform, warpPerspective, line, circle, perspectiveTransform
 from crop_video import video_file, check_file
 
-if not check_file(video_file):
-    raise SystemExit(f"Video file: {video_file} cannot be found!")
+def open_video(path: str = video_file):
+    if not check_file(path):
+        raise SystemExit(f"Video file: {path} cannot be found!")
 
-video = cv2.VideoCapture(video_file)
-if not video.isOpened():
-    raise SystemExit(f"Video file: {video_file} cannot be opened!")
+    video = cv2.VideoCapture(path)
+    if not video.isOpened():
+        raise SystemExit(f"Video file: {path} cannot be opened!")
+    return video
 
-frame_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-frame_height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
-pixel_width = int(967)
-pixel_height = int(1585)
+width_p = int(967)
+height_p = int(1585)
 
 width = int(967)
 height = 1585
