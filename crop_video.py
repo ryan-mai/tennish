@@ -52,26 +52,23 @@ def determinant(a, b):
 def find_intersection(line1, line2, x1, x2, y1, y2):
     # line1 = ((1, 2), (4, 6))
     # line2 = ((1, 5)) (4, 3))
+    if not line1 or not line2:
+        return None
+    
+    line1_p1, line1_p2 = line1
+    line2_p1, line2_p2 = line2
 
-    line1_x_diff = line1[0][0] - line1[1][0] # 1 - 4 = -3
-    line1_y_diff = line1[0][1] - line1[1][1] # 2 - 6 = -4
-
-    line2_x_diff = line2[0][0] - line2[1][0] # 1 - 4 = -3
-    line2_y_diff = line2[0][1] - line2[1][1] # 5 - 3 = 2
-
-    x_diff = (line1_x_diff, line2_x_diff) # (-3, -3)
-    y_diff = (line1_y_diff, line2_y_diff) # (-4, 2)
-
+    x_diff = (line1_p1[0] - line1_p2[0], line2_p1[0] - line2_p1[1]) # 1 - 4 = -3
+    y_diff = (line1_p1[1] - line1_p2[1], line2_p1[1] - line2_p1[1]) # 2 - 6 = -4
+    
     det_diff = determinant(x_diff, y_diff)
     if det_diff == 0:
-        print("Points are in the same direction")
+        print("Points are parallel")
         return None
     
     det = (determinant(*line1), determinant(*line2))
     x = int(determinant(det, x_diff) / det_diff)
     y = int(determinant(det, y_diff) / det_diff)
-    if (x < x1) or (x > x2):
-        return None
-    if (y < y1) or (y > y2):
+    if (x < x1) or (x > x2) or (y < y1) or (y > y2):
         return None
     return x, y

@@ -1,17 +1,23 @@
 from numpy import pi, ones, zeros, uint8, cos, sin
 from cv2 import VideoCapture, cvtColor, Canny, threshold, THRESH_BINARY, dilate, floodFill, erode, VideoWriter, VideoWriter_fourcc #type: ignore
-from cv2 import HoughLines, HoughLinesP, line, rectangle, imshow, waitKey, destroyAllWindows, COLOR_BGR2GRAY
+from cv2 import HoughLines, HoughLinesP, line, rectangle, imshow, waitKey, destroyAllWindows, resize, COLOR_BGR2GRAY, COLOR_GRAY2BGR
 from crop_video import video_file, find_intersection, calculate_pixels
 from court_mapping import width_p, height_p, map_court, show_mapped_lines, give_mapped_point, open_video
 from pathlib import Path
+import mediapipe as mp
+from body_tracking import map_body
 
 video = VideoCapture(video_file)
 width = int(video.get(3))
 height = int(video.get(4))
 
+output_dir = Path("output_videos")
+output_dir.mkdir(exist_ok=True)
+output_path = output_dir / "output.mp4"
+
 widthP, heightP = width, height
 fourcc = VideoWriter_fourcc(*'mp4v') 
-clip = VideoWriter('../Videos/Video.mp4', fourcc, 25.0, (widthP, heightP))
+clip = VideoWriter(str(output_path), fourcc, 25.0, (widthP, heightP))
 
 if not video.isOpened():
     print("ERROR: failed to open video. Check video_file path and codecs.")
@@ -19,6 +25,9 @@ if not video.isOpened():
     raise SystemExit(1)
 
 extra_len = width // 3
+
+class body1:
+    pose = mp_pose
 
 class axis:
     top = [[-extra_len, 0], [width + extra_len, 0]]
@@ -48,12 +57,12 @@ while video.isOpened():
         if coords.ndim == 0:
             coords = [coords] * 4
         x1, y1, x2, y2 = map(int, coords)
-        floodFill(non_rect_area, zeros((height + 2, width + 2), uint8), (x1, y1), 1)
-        floodFill(non_rect_area, zeros((height + 2, width + 2), uint8), (x2, y2), 1)
+        floodFill(non_rect_area, zeros((height + 2, width + 2), uint8), (x1, y1), (1, 1, 1))
+        floodFill(non_rect_area, zeros((height + 2, width + 2), uint8), (x2, y2), (1, 1, 1))
     dilation[non_rect_area == 255] = 0
     dilation[non_rect_area == 1] = 255
     eroded = erode(dilation, ones((5, 5), dtype=uint8))
-    canny_main = Canny(eroded, 90, 100)
+    canny_main = Canny(eroded, 100, 100)
 
     hough_lines = HoughLines(canny_main, 2, pi/180, 300)
     if hough_lines is None:
@@ -98,15 +107,18 @@ while video.isOpened():
         rectangle(processedFrame, (0, 0), (width_p, height_p), (188, 145, 103), 2000)
         processedFrame = show_mapped_lines(processedFrame)
         imshow("Court Mapping", processedFrame)
-
+        
     imshow("Original Frame", frame)
     if 'canny_main' in locals():
         imshow("Canny Main", canny_main)
 
+        canny_bgr = cvtColor(canny_main, COLOR_GRAY2BGR)
+        canny_resized = resize(canny_bgr, (widthP, heightP))
+        clip.write(canny_resized)
     key = waitKey(1) & 0xFF
     if key == ord('q'):
         print("User requested exit.")
         break
-
+clip.release()
 video.release()
 destroyAllWindows()
